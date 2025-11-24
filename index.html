@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misi Komandan (HOTS Simpel)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0a0000;
+            background-image: 
+                linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: #ff4d4d;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+        }
+
+        .title-font { font-family: 'Black Ops One', cursive; }
+
+        /* Efek Kotak Misi */
+        .mission-box {
+            background: rgba(20, 0, 0, 0.8);
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 10px #ff0000, inset 0 0 20px rgba(255, 0, 0, 0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .mission-box:hover {
+            transform: scale(1.05);
+            background: rgba(50, 0, 0, 0.9);
+            box-shadow: 0 0 20px #ff0000;
+        }
+        .mission-box.solved {
+            background: #1a1a1a;
+            border-color: #444;
+            box-shadow: none;
+            color: #444;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .mission-box::before {
+            content: "RAHASIA";
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 2rem;
+            opacity: 0.1;
+            white-space: nowrap;
+        }
+
+        /* Modal Soal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 50;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1a0505;
+            border: 2px solid #ff4d4d;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            max-width: 800px;
+            width: 90%;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            animation: scanline 0.5s ease-out;
+        }
+
+        @keyframes scanline {
+            0% { transform: scaleY(0); opacity: 0; }
+            100% { transform: scaleY(1); opacity: 1; }
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-reveal { background: #eab308; color: black; }
+        .btn-reveal:hover { background: #ca8a04; }
+        
+        .btn-correct { background: #22c55e; color: black; }
+        .btn-correct:hover { background: #16a34a; }
+        
+        .btn-wrong { background: #ef4444; color: black; }
+        .btn-wrong:hover { background: #dc2626; }
+
+        .answer-area {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #eab308;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col items-center justify-center p-4">
+
+    <h1 class="text-4xl md:text-6xl text-red-600 title-font mb-2 text-center tracking-wider" style="text-shadow: 0 0 20px red;">MISI KOMANDAN</h1>
+    <p class="text-red-300 mb-8 text-lg md:text-xl tracking-widest text-center">JAWAB BERDASARKAN PENGAMATAN DI SIMULASI!</p>
+
+    <!-- GRID MISI -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 w-full max-w-5xl">
+        <!-- 10 Tombol Misi -->
+        <div onclick="openMission(0)" id="box-0" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">01</span>
+            <span class="text-xs mt-2">TARGET: BALAPAN</span>
+        </div>
+        <div onclick="openMission(1)" id="box-1" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">02</span>
+            <span class="text-xs mt-2">TARGET: TEMAN BUMI</span>
+        </div>
+        <div onclick="openMission(2)" id="box-2" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">03</span>
+            <span class="text-xs mt-2">TARGET: BATAS</span>
+        </div>
+        <div onclick="openMission(3)" id="box-3" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">04</span>
+            <span class="text-xs mt-2">TARGET: EKOR</span>
+        </div>
+        <div onclick="openMission(4)" id="box-4" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">05</span>
+            <span class="text-xs mt-2">TARGET: WARNA</span>
+        </div>
+        <div onclick="openMission(5)" id="box-5" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">06</span>
+            <span class="text-xs mt-2">TARGET: JALAN MIRING</span>
+        </div>
+        <div onclick="openMission(6)" id="box-6" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">07</span>
+            <span class="text-xs mt-2">TARGET: CINCIN</span>
+        </div>
+        <div onclick="openMission(7)" id="box-7" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">08</span>
+            <span class="text-xs mt-2">TARGET: ULANG TAHUN</span>
+        </div>
+        <div onclick="openMission(8)" id="box-8" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">09</span>
+            <span class="text-xs mt-2">TARGET: SIANG MALAM</span>
+        </div>
+        <div onclick="openMission(9)" id="box-9" class="mission-box h-32 flex flex-col items-center justify-center rounded-lg">
+            <span class="text-4xl font-bold">10</span>
+            <span class="text-xs mt-2">TARGET: PIJAKAN</span>
+        </div>
+    </div>
+
+    <!-- MODAL SOAL -->
+    <div id="question-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6 border-b border-red-800 pb-4">
+                <span class="text-red-500 font-bold tracking-widest">DATA SIMULASI</span>
+                <button onclick="closeModal()" class="text-red-500 hover:text-white text-2xl">&times;</button>
+            </div>
+
+            <h2 id="modal-question" class="text-xl md:text-2xl font-bold text-white mb-8 leading-relaxed">
+                <!-- Soal Masuk Disini -->
+            </h2>
+
+            <div class="flex justify-center gap-4 mb-6">
+                <button onclick="revealAnswer()" class="btn-action btn-reveal">
+                    🔓 BUKA KUNCI JAWABAN
+                </button>
+            </div>
+
+            <div id="modal-answer" class="answer-area">
+                <h3 class="text-yellow-400 font-bold text-lg mb-2">JAWABANNYA ADALAH:</h3>
+                <p id="answer-text" class="text-white text-lg leading-relaxed"></p>
+                
+                <div class="flex gap-4 mt-6 justify-end border-t border-gray-600 pt-4">
+                    <button onclick="markResult(false)" class="btn-action btn-wrong">❌ KURANG TEPAT</button>
+                    <button onclick="markResult(true)" class="btn-action btn-correct">✅ BENAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 10 SOAL HOTS SD (BERDASARKAN PENGAMATAN VISUAL SIMULASI)
+        const missions = [
+            {
+                q: "Coba ingat gerakan planet di simulasi. Merkurius lari kencang sekali, tapi Neptunus di ujung sana jalannya santai. Kenapa Merkurius harus lari kencang?",
+                a: "Karena Merkurius sangat dekat dengan Matahari. Kalau jalannya pelan, dia bisa tersedot jatuh ke Matahari karena gravitasi panasnya."
+            },
+            {
+                q: "Di dekat Bumi, ada dua benda kecil yang ikut muter-muter (Bulan dan Satelit Buatan). Kalau dilihat dari namanya, apa bedanya?",
+                a: "Bulan itu benda alam ciptaan Tuhan. Satelit Buatan itu mesin buatan manusia (untuk sinyal HP/TV)."
+            },
+            {
+                q: "Di antara Mars dan Jupiter, kamu melihat ada banyak batu-batu kecil yang berbaris melingkar (Sabuk Asteroid). Menurutmu, apa fungsi barisan batu itu?",
+                a: "Seperti pagar pembatas! Memisahkan planet-planet kecil berbatu (Dalam) dengan planet-planet raksasa (Luar)."
+            },
+            {
+                q: "Komet punya ekor panjang yang bercahaya. Kalau kamu perhatikan, kapan ekor itu muncul? Apakah saat jauh atau saat dekat Matahari?",
+                a: "Hanya saat dekat Matahari. Karena panas Matahari melelehkan es di komet, jadilah uap yang bersinar (ekor)."
+            },
+            {
+                q: "Mars di simulasi warnanya merah. Di panel info tertulis itu karena 'Besi Berkarat'. Kok bisa sama kayak pagar besi di rumah kita?",
+                a: "Iya, karena tanah di Mars memang banyak mengandung besi. Kalau besi kena udara lama-lama jadi merah (karatan)."
+            },
+            {
+                q: "Coba ingat jalur (orbit) Pluto di simulasi. Jalurnya miring sendirian, beda sama teman-temannya yang rata. Apa akibatnya kalau jalurnya miring begitu?",
+                a: "Pluto jadi sering main 'naik-turun'. Kadang dia ada di atas planet lain, kadang di bawah. Dia jadi planet yang unik dan beda sendiri."
+            },
+            {
+                q: "Saturnus punya 'hula hoop' atau cincin besar. Kalau kita naik pesawat ke sana, bisakah kita mendarat dan berdiri di atas cincin itu?",
+                a: "Tidak bisa! Cincin itu bukan jalanan padat, tapi kumpulan jutaan batu es kecil yang melayang-layang. Kita bakal tembus."
+            },
+            {
+                q: "Satu tahun itu artinya satu kali keliling Matahari. Di simulasi, Neptunus jalannya lamaaa sekali. Berarti, kalau kamu tinggal di Neptunus, ulang tahunmu jadi jarang atau sering?",
+                a: "Jarang sekali! Satu tahun di sana lamanya minta ampun (165 tahun Bumi). Kita mungkin seumur hidup tidak pernah ulang tahun di sana."
+            },
+            {
+                q: "Semua planet di simulasi berputar seperti gasing (Rotasi). Apa yang terjadi kalau Bumi tiba-tiba capek dan berhenti berputar?",
+                a: "Tidak ada lagi pagi dan malam. Satu sisi Bumi akan terus terang (kepanasan), sisi lainnya terus gelap (kedinginan)."
+            },
+            {
+                q: "Jupiter di simulasi ukurannya RAKSASA dibanding Bumi. Tapi kenapa kita tidak pindah ke sana saja? Kan luas?",
+                a: "Karena Jupiter itu 'Planet Gas'. Tidak ada tanah keras untuk dipijak. Kalau mendarat di sana, kita akan tenggelam ke dalam gas."
+            }
+        ];
+
+        let currentMissionId = -1;
+
+        function openMission(id) {
+            currentMissionId = id;
+            const mission = missions[id];
+            
+            // Reset Modal
+            document.getElementById('modal-question').innerText = mission.q;
+            document.getElementById('answer-text').innerText = mission.a;
+            document.getElementById('modal-answer').style.display = 'none';
+            
+            // Tampilkan Modal
+            document.getElementById('question-modal').style.display = 'flex';
+        }
+
+        function revealAnswer() {
+            document.getElementById('modal-answer').style.display = 'block';
+        }
+
+        function markResult(success) {
+            const box = document.getElementById(`box-${currentMissionId}`);
+            
+            if (success) {
+                box.classList.add('solved');
+                box.style.background = '#14532d'; // Hijau Gelap
+                box.style.borderColor = '#22c55e';
+                box.innerHTML += '<div style="color:#22c55e; font-size:20px; margin-top:5px">SELESAI</div>';
+            }
+            
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('question-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
